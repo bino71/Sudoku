@@ -69,7 +69,7 @@ public class GameRestController {
     @PostMapping("/reset")
     public BoardDto reset() {
         var state = gameSession.getOrFail();
-        state.getBoard().clearUserCells();
+        state.reset();
         return BoardDto.from(state);
     }
 }

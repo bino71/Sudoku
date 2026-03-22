@@ -44,7 +44,7 @@ cd sudoku-angular && npm start
 
 ```
 sudoku/
-├── pom.xml             ← parent POM: Java 26, junit 5.12.1, javafx 24.0.1
+├── pom.xml             ← parent POM: Java 26, junit 5.10.2, javafx 24.0.1
 ├── sudoku-core/        ← game logic (no UI deps)
 ├── sudoku-swing/       ← Swing UI, depends on sudoku-core
 ├── sudoku-javafx/      ← JavaFX UI, depends on sudoku-core

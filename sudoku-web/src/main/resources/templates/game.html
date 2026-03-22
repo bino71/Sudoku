@@ -96,6 +96,13 @@
             50%       { background: #80b8ff; }
         }
 
+        @keyframes flash-hint {
+            0%, 100% { background: #fff9c4; }
+            50%       { background: #f9e53f; }
+        }
+
+        td.cell-hint-flash { animation: flash-hint 0.4s ease-in-out 3; }
+
         td.cell-given input { color: #1a1a1a; cursor: default; }
         td.cell-user  input { color: #1565c0; }
         td.cell-conflict input { color: #c0392b; }
@@ -195,7 +202,7 @@
 </div>
 <div id="hint-msg"></div>
 
-<script>
+<script th:inline="javascript">
     // ─── Timer ───────────────────────────────────────────────────────────────
     let timerSeconds = 0;
     let timerInterval = null;
@@ -235,9 +242,12 @@
                 inp.dataset.given = isGiven;
 
                 td.className = '';
-                td.classList.add(isGiven ? 'cell-given' : (isConflict ? 'cell-conflict' : 'cell-user'));
+                td.classList.add(isGiven ? 'cell-given' : 'cell-user');
+                if (isConflict) td.classList.add('cell-conflict');
                 if (c === 2 || c === 5) td.classList.add('box-right');
                 if (r === 2 || r === 5) td.classList.add('box-bottom');
+
+                inp.dataset.last = v !== 0 ? String(v) : '';
             }
         }
 

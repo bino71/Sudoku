@@ -16,8 +16,8 @@
         <module>sudoku-core</module>
         <module>sudoku-swing</module>
         <module>sudoku-javafx</module>
-        <module>sudoku-web</module>
         <module>sudoku-angular</module>
+        <module>sudoku-web</module>
     </modules>
 
     <properties>

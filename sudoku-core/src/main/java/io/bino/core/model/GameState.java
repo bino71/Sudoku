@@ -107,6 +107,20 @@ public class GameState {
         }
     }
 
+    /**
+     * Resets the game to its initial state: clears all user entries, resets
+     * completion/conflict flags, mistake count, and the timer.
+     */
+    public void reset() {
+        board.clearUserCells();
+        complete = false;
+        hadConflicts = false;
+        mistakeCount = 0;
+        cachedSolution = null;
+        resetTimer();
+        fireEvent(new GameEvent(GameEvent.Type.CELL_CHANGED, -1, -1));
+    }
+
     public int getMistakeCount() {
         return mistakeCount;
     }
