@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { DOCUMENT, NgClass } from '@angular/common';
 import { BoardDto } from '../../models/board.model';
 import { CellComponent } from '../cell/cell.component';
 
@@ -11,6 +11,8 @@ import { CellComponent } from '../cell/cell.component';
   styleUrl: './board.component.scss'
 })
 export class BoardComponent {
+  private readonly document = inject(DOCUMENT);
+
   @Input() board: BoardDto | null = null;
   @Input() selectedCell: { row: number; col: number } | null = null;
   @Input() hintedCell: { row: number; col: number } | null = null;
@@ -49,6 +51,20 @@ export class BoardComponent {
   onClearKey(row: number, col: number): void {
     if (this.board && !this.board.given[row][col]) {
       this.valueEntered.emit({ row, col, value: 0 });
+    }
+  }
+
+  onArrowKey(row: number, col: number, direction: 'up' | 'down' | 'left' | 'right'): void {
+    const deltas: Record<string, [number, number]> = {
+      up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1]
+    };
+    const [dr, dc] = deltas[direction];
+    const nr = row + dr, nc = col + dc;
+    if (nr < 0 || nr > 8 || nc < 0 || nc > 8) return;
+    const target = this.document.getElementById(`cell-${nr}-${nc}`);
+    if (target) {
+      target.focus();
+      this.cellSelected.emit({ row: nr, col: nc });
     }
   }
 }

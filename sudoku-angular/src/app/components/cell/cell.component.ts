@@ -9,6 +9,7 @@ import { NgClass } from '@angular/common';
   styleUrl: './cell.component.scss'
 })
 export class CellComponent {
+  @Input() cellId: string = '';
   @Input() value: number = 0;
   @Input() given: boolean = false;
   @Input() conflict: boolean = false;
@@ -18,6 +19,7 @@ export class CellComponent {
   @Output() cellClick = new EventEmitter<void>();
   @Output() digitKey = new EventEmitter<number>();
   @Output() clearKey = new EventEmitter<void>();
+  @Output() arrowKey = new EventEmitter<'up' | 'down' | 'left' | 'right'>();
 
   get displayValue(): string {
     return this.value > 0 ? String(this.value) : '';
@@ -31,6 +33,18 @@ export class CellComponent {
     } else if (key === 'Backspace' || key === 'Delete' || key === '0') {
       event.preventDefault();
       this.clearKey.emit();
+    } else if (key === 'ArrowUp') {
+      event.preventDefault();
+      this.arrowKey.emit('up');
+    } else if (key === 'ArrowDown') {
+      event.preventDefault();
+      this.arrowKey.emit('down');
+    } else if (key === 'ArrowLeft') {
+      event.preventDefault();
+      this.arrowKey.emit('left');
+    } else if (key === 'ArrowRight') {
+      event.preventDefault();
+      this.arrowKey.emit('right');
     }
   }
 

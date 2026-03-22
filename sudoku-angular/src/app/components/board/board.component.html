@@ -4,6 +4,7 @@
       @for (col of cols; track col) {
         <div class="cell-wrapper" [ngClass]="getCellClasses(row, col)">
           <app-cell
+            [cellId]="'cell-' + row + '-' + col"
             [value]="board.values[row][col]"
             [given]="board.given[row][col]"
             [conflict]="board.conflicts[row][col]"
@@ -12,6 +13,7 @@
             (cellClick)="onCellClick(row, col)"
             (digitKey)="onDigitKey(row, col, $event)"
             (clearKey)="onClearKey(row, col)"
+            (arrowKey)="onArrowKey(row, col, $event)"
           />
         </div>
       }
