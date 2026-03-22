@@ -152,9 +152,47 @@
             min-height: 1.2em;
             text-align: center;
         }
+
+        nav.top-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        nav.top-nav a.back-link {
+            font-size: 0.85rem;
+            color: #555;
+            text-decoration: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: background 0.15s;
+        }
+
+        nav.top-nav a.back-link:hover { background: #e0e0e0; }
+
+        .variant-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(39,174,96,0.12);
+            color: #1e8449;
+            border: 1px solid rgba(39,174,96,0.3);
+        }
     </style>
 </head>
 <body>
+
+<nav class="top-nav">
+    <a class="back-link" th:href="@{/}">&#8592; All variants</a>
+    <span class="variant-badge">Thymeleaf SSR</span>
+</nav>
 
 <h1>Sudoku</h1>
 
