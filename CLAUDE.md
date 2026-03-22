@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-An interactive Sudoku game in Java 26, structured as a Maven multi-module project with two parallel UIs (Swing and JavaFX) sharing a common core engine.
+An interactive Sudoku game in Java 26, structured as a Maven multi-module project with two desktop UIs (Swing and JavaFX), a Spring Boot web backend with Thymeleaf SSR, and an Angular 21 SPA — all sharing the same core engine.
 
 ## Build & Run
 
@@ -25,23 +25,38 @@ mvn -pl sudoku-swing exec:java
 
 # Launch JavaFX UI
 mvn -pl sudoku-javafx javafx:run
+
+# Build Angular then launch web UI (both served from Spring Boot at :8080)
+# Step 1 — build Angular (only needed once, or after Angular changes)
+cd sudoku-angular && npm run build && cd ..
+# Step 2 — start Spring Boot (auto-copies Angular dist on startup via generate-resources)
+mvn -pl sudoku-web spring-boot:run
+# http://localhost:8080/           ← Angular SPA
+# http://localhost:8080/thymeleaf  ← Thymeleaf SSR page
+# http://localhost:8080/api/game/* ← REST API
+
+# Angular dev server with live-reload (requires Spring Boot running on :8080)
+cd sudoku-angular && npm start
+# open http://localhost:4200  — proxies /api/* to :8080
 ```
 
 ## Module Layout
 
 ```
 sudoku/
-├── pom.xml             ← parent POM: Java 26, junit 5.12.1, javafx 24.0.1
+├── pom.xml             ← parent POM: Java 26, junit 5.10.2, javafx 24.0.1
 ├── sudoku-core/        ← game logic (no UI deps)
 ├── sudoku-swing/       ← Swing UI, depends on sudoku-core
-└── sudoku-javafx/      ← JavaFX UI, depends on sudoku-core
+├── sudoku-javafx/      ← JavaFX UI, depends on sudoku-core
+├── sudoku-web/         ← Spring Boot 3.4 + Thymeleaf SSR + REST API
+└── sudoku-angular/     ← Angular 21 SPA (calls sudoku-web REST API)
 ```
 
 ## Architecture
 
 ### sudoku-core
 
-All logic is in `src/main/java/horst/haering/de/core/`:
+All logic is in `src/main/java/io/bino/core/`:
 
 - **`model/SudokuBoard`** — 9×9 grid, given vs. user cells, observable via `GameEventListener`
 - **`model/GameState`** — central hub: board + timer + mistakes + completion; fires `GameEvent`s to listeners; call `fireEvent()` to force a UI refresh
@@ -54,7 +69,7 @@ All logic is in `src/main/java/horst/haering/de/core/`:
 
 ### sudoku-swing
 
-`src/main/java/horst/haering/de/swing/`:
+`src/main/java/io/bino/swing/`:
 - `MainFrame` — JFrame, wires `BoardPanel` + `ControlPanel` to `GameState`
 - `board/BoardPanel` — 9×9 `GridLayout` of `SudokuCellPanel`; `paintComponent` draws thick 3×3 box borders
 - `board/SudokuCellPanel` — JTextField with `DocumentFilter` (accepts only digits 1-9); color states via `setBackground()`
@@ -62,14 +77,37 @@ All logic is in `src/main/java/horst/haering/de/core/`:
 
 ### sudoku-javafx
 
-`src/main/java/horst/haering/de/fx/`:
+`src/main/java/io/bino/fx/`:
 - `SudokuFxApp` — `extends Application`; creates `GameState`, wires `BoardGrid` + `ControlBar`
 - `component/BoardGrid` — `GridPane` 9×9; CSS classes `cell-given/cell-user/cell-conflict/cell-selected/cell-hint`; box borders via `box-border-right/bottom/corner` CSS classes
 - `component/ControlBar` — `VBox` with buttons, difficulty `ComboBox`, timer, mistake label
 
-CSS: `src/main/resources/horst/haering/de/fx/sudoku.css`
+CSS: `src/main/resources/io/bino/fx/sudoku.css`
 
 No `module-info.java` — `javafx-maven-plugin` handles module path automatically.
+
+### sudoku-web
+
+`src/main/java/io/bino/web/`:
+- `SudokuWebApp` — `@SpringBootApplication` entry point
+- `session/GameSession` — `@Component @SessionScope`; one `GameState` per HTTP session; **does NOT call `startTimer()`** (timer is client-side JS)
+- `dto/BoardDto` — record mapping `GameState` → JSON (`values[][]`, `given[][]`, `conflicts[][]`, `complete`, `mistakeCount`, `difficulty`)
+- `controller/GameRestController` — REST endpoints at `/api/game/{new,state,enter,hint,solve,reset}`
+- `controller/GameViewController` — Thymeleaf route at `GET /thymeleaf`
+- `config/WebConfig` — CORS for `:4200`, SPA fallback (`PathResourceResolver` → `index.html`)
+- `templates/game.html` — full Thymeleaf board with JS fetch calls
+
+### sudoku-angular
+
+Angular 21 (Node 22.15+, TypeScript 5.9) standalone-components SPA in `src/app/`:
+- `services/game.service.ts` — `HttpClient` calls to `/api/game/*`
+- `components/board/` — `BoardComponent` renders 9×9 grid using `@for` control flow
+- `components/cell/` — `CellComponent` handles keyboard input (digits 1-9, Backspace/Delete)
+- `components/control-bar/` — `ControlBarComponent` with difficulty select, buttons, client-side timer
+- `app.component.ts` — root, manages state: `board`, `selectedCell`, `hintedCell`
+- `proxy.conf.json` — dev-server proxy routes `/api` → `http://localhost:8080`
+
+Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng build`, then `maven-resources-plugin` copies `dist/sudoku-angular/browser/` → `sudoku-web/src/main/resources/static/`.
 
 ## Key Pitfalls
 
@@ -79,3 +117,24 @@ No `module-info.java` — `javafx-maven-plugin` handles module path automaticall
 - **Generator test speed**: Tests use seeded `Random(42)` and EASY difficulty only — MEDIUM/HARD uniqueness checks are too slow for CI.
 - **Solver test speed**: `detectsUnsolvableBoard` must use a near-complete board (only 1 empty cell with 0 candidates) — a sparse invalid board causes exhaustive search and hangs. `countSolutions` tests likewise use near-complete boards or boards with known quick ambiguity.
 - **`TimerLabel.gameState`** is non-final (needed for `rebind()`) — the `final` modifier would cause a compile error.
+- **Angular timer**: `GameSession` never calls `startTimer()` — the web UI manages its own `setInterval` timer. Calling it would leak daemon threads per session.
+- **Angular build output**: `ng build` emits to `dist/sudoku-angular/browser/` (not `dist/sudoku-angular/`). The pom copies from `browser/`.
+- **Angular Node version**: Angular 21 requires Node ≥ 22.x. Use Node 22.15.0 via nvm. Also requires TypeScript ≥ 5.9 (published as 5.9.3 — do not use TS 5.7/5.8 with Angular 21).
+- **CORS**: `WebConfig` allows `http://localhost:4200` with credentials. In production the SPA is served from the Spring Boot static resources, so no CORS needed.
+- **Java bytecode target vs runtime**: Project compiles to Java 21 bytecode (`<release>21</release>`) even though JDK 26 is used to build/run. Spring Boot 3.4's embedded ASM only supports class file versions up to 65 (Java 21) — compiling to Java 26 bytecode (version 70) causes `Unsupported class file major version 70` at runtime in `spring-boot:run`. The `-parameters` compiler flag is also required so Spring MVC can resolve `@RequestParam` names by reflection.
+- **`spring-boot:run` and PATH**: On Windows with multiple JDKs, ensure JDK 26 is first in `PATH` (not just `JAVA_HOME`) so the forked Spring Boot process uses the correct JVM. IntelliJ handles this automatically via the project SDK — always prefer running via IntelliJ rather than the terminal.
+- **Angular 404 on first run**: `spring-boot:run` serves from `target/classes/static/`. The Angular dist must be built first (`npm run build` in `sudoku-angular/`). The `sudoku-web` pom copies the dist during `generate-resources` — this runs automatically when IntelliJ triggers the Spring Boot run config. After a fresh clone: build Angular once, then Spring Boot picks it up.
+
+## Basic principles
+- When working on a new feature/fix
+  - create a new branch from `main`
+  - always compile and test after an implementation task
+  - when done commit with descriptive commit message and push and open a PR
+  - use semantic commits
+- tools
+  - try using latest stable libs and tools (LTS)
+  - update tools when needed in D:\tools\ and make them available in the PATH
+  - use WSL with Ubuntu 22.04 LTS for Windows development with intelliJ for better integration
+  - VS Code is awful, use IntelliJ. Nevertheless, give me insights on advantages of VS Code
+- always give feedback, advice on best practices and ask questions
+- always update the README.md and CLAUDE.md

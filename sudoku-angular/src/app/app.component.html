@@ -1,0 +1,44 @@
+<div class="app-layout">
+  <header class="app-header">
+    <h1 class="app-title">Sudoku</h1>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-banner">{{ errorMessage }}</div>
+  }
+
+  <main class="game-area">
+    <div class="board-container">
+      <app-board
+        [board]="board"
+        [selectedCell]="selectedCell"
+        [hintedCell]="hintedCell"
+        (cellSelected)="onCellSelected($event)"
+        (valueEntered)="onValueEntered($event)"
+      />
+    </div>
+
+    <aside class="sidebar">
+      <app-control-bar
+        [difficulty]="board?.difficulty ?? 'EASY'"
+        [mistakeCount]="board?.mistakeCount ?? 0"
+        [complete]="board?.complete ?? false"
+        (newGame)="onNewGame($event)"
+        (hint)="onHint()"
+        (solve)="onSolve()"
+        (reset)="onReset()"
+      />
+    </aside>
+  </main>
+</div>
+
+@if (board?.complete) {
+  <div class="completion-overlay" (click)="onNewGame(board?.difficulty ?? 'EASY')">
+    <div class="completion-card">
+      <div class="completion-icon">&#x2713;</div>
+      <h2>Puzzle Complete!</h2>
+      <p>Mistakes: {{ board?.mistakeCount }}</p>
+      <p class="completion-hint">Click anywhere to start a new game</p>
+    </div>
+  </div>
+}

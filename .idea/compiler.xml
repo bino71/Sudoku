@@ -9,7 +9,16 @@
         <module name="sudoku-core" />
         <module name="sudoku-javafx" />
         <module name="sudoku-swing" />
+        <module name="sudoku-web" />
       </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="sudoku-core" options="-parameters" />
+      <module name="sudoku-javafx" options="-parameters" />
+      <module name="sudoku-swing" options="-parameters" />
+      <module name="sudoku-web" options="-parameters" />
+    </option>
   </component>
 </project>

@@ -1,0 +1,43 @@
+.board {
+  display: inline-grid;
+  grid-template-columns: repeat(9, 50px);
+  grid-template-rows: repeat(9, 50px);
+  // Outer border: top and left only — right/bottom come from the last col/row cell-wrappers
+  border-top: 3px solid #333;
+  border-left: 3px solid #333;
+  background: #fff;
+}
+
+.cell-wrapper {
+  display: flex;
+  align-items: stretch;
+  // Every cell has a thin right+bottom border by default
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+
+  app-cell {
+    flex: 1;
+  }
+
+  // Thick right border: after 3rd and 6th column (inner box dividers) + outer right edge (col 8)
+  &.box-border-right {
+    border-right: 3px solid #333;
+  }
+
+  // Thick bottom border: after 3rd and 6th row (inner box dividers) + outer bottom edge (row 8)
+  &.box-border-bottom {
+    border-bottom: 3px solid #333;
+  }
+}
+
+.board-placeholder {
+  width: 456px;
+  height: 456px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #333;
+  background: #f9f9f9;
+  font-size: 1.2rem;
+  color: #666;
+}

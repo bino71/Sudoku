@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sudoku</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        #status-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 16px;
+            font-size: 1rem;
+            color: #34495e;
+        }
+
+        #status-bar span { font-weight: bold; }
+
+        #complete-msg {
+            display: none;
+            background: #27ae60;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            animation: pulse-green 1s ease-in-out 3;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Board */
+        table#board {
+            border-collapse: collapse;
+            border: 3px solid #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        td {
+            width: 52px;
+            height: 52px;
+            border: 1px solid #aab;
+            padding: 0;
+            position: relative;
+        }
+
+        /* Thick right border after columns 2, 5 (0-indexed) */
+        td.box-right  { border-right:  3px solid #2c3e50; }
+        /* Thick bottom border after rows 2, 5 (0-indexed) */
+        td.box-bottom { border-bottom: 3px solid #2c3e50; }
+
+        td input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: transparent;
+            cursor: pointer;
+            caret-color: transparent;
+        }
+
+        /* Cell states */
+        td.cell-given  { background: #e8e8e8; }
+        td.cell-user   { background: #ffffff; }
+        td.cell-conflict { background: #ffb3b3; }
+
+        td.cell-selected { background: #b3d4ff; animation: pulse-blue 1.2s ease-in-out infinite; }
+
+        @keyframes pulse-blue {
+            0%, 100% { background: #b3d4ff; }
+            50%       { background: #80b8ff; }
+        }
+
+        @keyframes flash-hint {
+            0%, 100% { background: #fff9c4; }
+            50%       { background: #f9e53f; }
+        }
+
+        td.cell-hint-flash { animation: flash-hint 0.4s ease-in-out 3; }
+
+        td.cell-given input { color: #1a1a1a; cursor: default; }
+        td.cell-user  input { color: #1565c0; }
+        td.cell-conflict input { color: #c0392b; }
+
+        /* Controls */
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        select#difficulty {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid #2c3e50;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        button:hover  { opacity: 0.85; }
+        button:active { transform: scale(0.97); }
+
+        #btn-new   { background: #27ae60; color: white; }
+        #btn-hint  { background: #2980b9; color: white; }
+        #btn-solve { background: #8e44ad; color: white; }
+        #btn-reset { background: #e67e22; color: white; }
+
+        #hint-msg {
+            font-size: 0.85rem;
+            color: #555;
+            margin-top: 4px;
+            min-height: 1.2em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Sudoku</h1>
+
+<div id="status-bar">
+    <div>Time: <span id="timer">0:00</span></div>
+    <div>Mistakes: <span id="mistakes" th:text="${board.mistakeCount()}">0</span></div>
+    <div>Difficulty: <span id="diff-display" th:text="${board.difficulty()}">EASY</span></div>
+</div>
+
+<div id="complete-msg">Congratulations! Puzzle solved!</div>
+
+<table id="board">
+    <tbody>
+        <tr th:each="row, rowStat : ${board.values()}">
+            <td th:each="val, colStat : ${row}"
+                th:id="'cell-' + ${rowStat.index} + '-' + ${colStat.index}"
+                th:classappend="(${board.given()[rowStat.index][colStat.index]} ? 'cell-given ' : 'cell-user ')
+                              + (${board.conflicts()[rowStat.index][colStat.index]} ? 'cell-conflict ' : '')
+                              + (${colStat.index == 2 or colStat.index == 5 or colStat.index == 8} ? 'box-right ' : '')
+                              + (${rowStat.index == 2 or rowStat.index == 5 or rowStat.index == 8} ? 'box-bottom' : '')">
+                <input
+                    th:id="'inp-' + ${rowStat.index} + '-' + ${colStat.index}"
+                    type="text"
+                    maxlength="1"
+                    th:value="${val != 0} ? ${val} : ''"
+                    th:readonly="${board.given()[rowStat.index][colStat.index]}"
+                    th:data-row="${rowStat.index}"
+                    th:data-col="${colStat.index}"
+                    th:data-given="${board.given()[rowStat.index][colStat.index]}"
+                    autocomplete="off"
+                />
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="controls">
+    <select id="difficulty">
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
+    </select>
+    <button id="btn-new"   onclick="newGame()">New Game</button>
+    <button id="btn-hint"  onclick="getHint()">Hint</button>
+    <button id="btn-solve" onclick="solvePuzzle()">Solve</button>
+    <button id="btn-reset" onclick="resetPuzzle()">Reset</button>
+</div>
+<div id="hint-msg"></div>
+
+<script th:inline="javascript">
+    // ─── Timer ───────────────────────────────────────────────────────────────
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function startTimer() {
+        stopTimer();
+        timerSeconds = 0;
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+            timerSeconds++;
+            updateTimerDisplay();
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+
+    function updateTimerDisplay() {
+        const m = Math.floor(timerSeconds / 60);
+        const s = timerSeconds % 60;
+        document.getElementById('timer').textContent = m + ':' + String(s).padStart(2, '0');
+    }
+
+    // ─── Board rendering ─────────────────────────────────────────────────────
+    function renderBoard(board) {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const td  = document.getElementById('cell-' + r + '-' + c);
+                const inp = document.getElementById('inp-'  + r + '-' + c);
+                const v   = board.values[r][c];
+                const isGiven    = board.given[r][c];
+                const isConflict = board.conflicts[r][c];
+
+                inp.value    = v !== 0 ? v : '';
+                inp.readOnly = isGiven;
+                inp.dataset.given = isGiven;
+
+                td.className = '';
+                td.classList.add(isGiven ? 'cell-given' : 'cell-user');
+                if (isConflict) td.classList.add('cell-conflict');
+                if (c === 2 || c === 5) td.classList.add('box-right');
+                if (r === 2 || r === 5) td.classList.add('box-bottom');
+
+                inp.dataset.last = v !== 0 ? String(v) : '';
+            }
+        }
+
+        document.getElementById('mistakes').textContent = board.mistakeCount;
+        document.getElementById('diff-display').textContent = board.difficulty;
+
+        const completeMsg = document.getElementById('complete-msg');
+        if (board.complete) {
+            stopTimer();
+            completeMsg.style.display = 'block';
+        } else {
+            completeMsg.style.display = 'none';
+        }
+    }
+
+    // ─── API helpers ─────────────────────────────────────────────────────────
+    async function apiGet(url) {
+        const resp = await fetch(url, { credentials: 'same-origin' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+    }
+
+    async function apiPost(url, body) {
+        const resp = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: body !== undefined ? JSON.stringify(body) : undefined
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+    }
+
+    // ─── Actions ─────────────────────────────────────────────────────────────
+    async function newGame() {
+        const diff = document.getElementById('difficulty').value;
+        setHintMsg('');
+        try {
+            const board = await apiGet('/api/game/new?difficulty=' + diff);
+            renderBoard(board);
+            startTimer();
+        } catch (e) { alert('Failed to start new game: ' + e.message); }
+    }
+
+    async function getHint() {
+        setHintMsg('');
+        try {
+            const data = await apiPost('/api/game/hint');
+            if (data.message) {
+                setHintMsg(data.message);
+            } else {
+                setHintMsg('Hint: ' + data.reason + ' → R' + (data.row + 1) + 'C' + (data.col + 1) + ' = ' + data.value);
+                renderBoard(data.board);
+                highlightCell(data.row, data.col, 'cell-hint-flash');
+            }
+        } catch (e) { alert('Hint error: ' + e.message); }
+    }
+
+    async function solvePuzzle() {
+        setHintMsg('');
+        try {
+            const board = await apiPost('/api/game/solve');
+            renderBoard(board);
+            stopTimer();
+        } catch (e) { alert('Solve error: ' + e.message); }
+    }
+
+    async function resetPuzzle() {
+        setHintMsg('');
+        try {
+            const board = await apiPost('/api/game/reset');
+            renderBoard(board);
+            startTimer();
+        } catch (e) { alert('Reset error: ' + e.message); }
+    }
+
+    function setHintMsg(msg) {
+        document.getElementById('hint-msg').textContent = msg;
+    }
+
+    function highlightCell(row, col, cls) {
+        const td = document.getElementById('cell-' + row + '-' + col);
+        if (!td) return;
+        td.classList.add(cls);
+        setTimeout(() => td.classList.remove(cls), 1200);
+    }
+
+    // ─── Cell input handling ──────────────────────────────────────────────────
+    let selectedRow = -1, selectedCol = -1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wire up all input cells
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const inp = document.getElementById('inp-' + r + '-' + c);
+                if (!inp) continue;
+
+                inp.addEventListener('focus', () => selectCell(r, c));
+                inp.addEventListener('blur',  () => deselect(r, c));
+
+                inp.addEventListener('keydown', async (e) => {
+                    if (inp.dataset.given === 'true') { e.preventDefault(); return; }
+
+                    let val = null;
+                    if (e.key >= '1' && e.key <= '9') {
+                        val = parseInt(e.key);
+                    } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                        val = 0;
+                    } else if (e.key === 'ArrowRight') { moveFocus(r, c, 0, 1); e.preventDefault(); return; }
+                    else if (e.key === 'ArrowLeft')  { moveFocus(r, c, 0, -1); e.preventDefault(); return; }
+                    else if (e.key === 'ArrowDown')  { moveFocus(r, c, 1, 0);  e.preventDefault(); return; }
+                    else if (e.key === 'ArrowUp')    { moveFocus(r, c, -1, 0); e.preventDefault(); return; }
+                    else { e.preventDefault(); return; }
+
+                    if (val !== null) {
+                        e.preventDefault();
+                        setHintMsg('');
+                        try {
+                            const board = await apiPost('/api/game/enter', { row: r, col: c, value: val });
+                            renderBoard(board);
+                            // Re-focus cell after render
+                            const reinp = document.getElementById('inp-' + r + '-' + c);
+                            if (reinp && !reinp.readOnly) reinp.focus();
+                        } catch (err) { alert('Enter error: ' + err.message); }
+                    }
+                });
+
+                // Prevent typing via input event (we handle via keydown)
+                inp.addEventListener('input', (e) => {
+                    e.preventDefault();
+                    inp.value = inp.dataset.last || '';
+                });
+            }
+        }
+
+        // Check if there's already a complete board (server-side rendered on reload)
+        const completeMsgEl = document.getElementById('complete-msg');
+        if (/*[[${board.complete()}]]*/ false) {
+            completeMsgEl.style.display = 'block';
+        }
+
+        // Start timer if game in progress
+        const isComplete = document.getElementById('complete-msg').style.display === 'block';
+        if (!isComplete) startTimer();
+    });
+
+    function selectCell(r, c) {
+        // Deselect previous
+        if (selectedRow >= 0) {
+            const prevTd = document.getElementById('cell-' + selectedRow + '-' + selectedCol);
+            if (prevTd) prevTd.classList.remove('cell-selected');
+        }
+        selectedRow = r; selectedCol = c;
+        const td = document.getElementById('cell-' + r + '-' + c);
+        if (td && !td.classList.contains('cell-given')) {
+            td.classList.add('cell-selected');
+        }
+    }
+
+    function deselect(r, c) {
+        const td = document.getElementById('cell-' + r + '-' + c);
+        if (td) td.classList.remove('cell-selected');
+        if (selectedRow === r && selectedCol === c) { selectedRow = -1; selectedCol = -1; }
+    }
+
+    function moveFocus(r, c, dr, dc) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr > 8 || nc < 0 || nc > 8) return;
+        const inp = document.getElementById('inp-' + nr + '-' + nc);
+        if (inp) inp.focus();
+    }
+</script>
+</body>
+</html>

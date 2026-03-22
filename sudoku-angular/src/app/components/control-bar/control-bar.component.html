@@ -1,0 +1,31 @@
+<div class="control-bar">
+  <div class="timer-section">
+    <span class="timer-label">Time</span>
+    <span class="timer-value">{{ formattedTime }}</span>
+  </div>
+
+  <div class="mistakes-section">
+    <span class="mistakes-label">Mistakes</span>
+    <span class="mistakes-value">{{ mistakeCount }}</span>
+  </div>
+
+  <div class="difficulty-section">
+    <label for="difficulty-select" class="difficulty-label">Difficulty</label>
+    <select id="difficulty-select" [(ngModel)]="selectedDifficulty" class="difficulty-select">
+      @for (d of difficulties; track d) {
+        <option [value]="d">{{ d }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="buttons-section">
+    <button class="btn btn-primary" (click)="onNewGame()">New Game</button>
+    <button class="btn btn-secondary" (click)="onHint()">Hint</button>
+    <button class="btn btn-secondary" (click)="onSolve()">Solve</button>
+    <button class="btn btn-secondary" (click)="onReset()">Reset</button>
+  </div>
+
+  @if (complete) {
+    <div class="complete-badge">Completed!</div>
+  }
+</div>
