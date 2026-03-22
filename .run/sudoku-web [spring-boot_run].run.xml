@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="sudoku-web [spring-boot:run]" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="sudoku-web" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.bino.web.SudokuWebApp" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

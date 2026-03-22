@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Angular dev server" type="js.build_tools.npm" factoryName="npm">
+  <configuration default="false" name="sudoku-angular [npm start]" type="js.build_tools.npm" factoryName="npm">
     <package-json value="$PROJECT_DIR$/sudoku-angular/package.json" />
     <command value="run" />
     <scripts>
