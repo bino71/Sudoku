@@ -28,7 +28,7 @@ mvn -pl sudoku-javafx javafx:run
 
 # Launch web UI (Spring Boot — serves Thymeleaf + Angular SPA at :8080)
 mvn -pl sudoku-web spring-boot:run
-# then open http://localhost:8080  (Thymeleaf) or http://localhost:8080/index.html (Angular)
+# then open http://localhost:8080 (Angular SPA) or http://localhost:8080/thymeleaf (Thymeleaf)
 
 # Angular dev server with live-reload (proxies /api → :8080)
 cd sudoku-angular && npm start
@@ -39,7 +39,7 @@ cd sudoku-angular && npm start
 
 ```
 sudoku/
-├── pom.xml             ← parent POM: Java 26, junit 5.12.1, javafx 24.0.1
+├── pom.xml             ← parent POM: Java 26, junit 5.10.2, javafx 24.0.1
 ├── sudoku-core/        ← game logic (no UI deps)
 ├── sudoku-swing/       ← Swing UI, depends on sudoku-core
 ├── sudoku-javafx/      ← JavaFX UI, depends on sudoku-core

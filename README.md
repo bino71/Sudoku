@@ -40,7 +40,7 @@ Maven download: [maven.apache.org](https://maven.apache.org/download.cgi)
 ## Build & Run
 
 ```bash
-# Build all modules (includes Angular build + tests)
+# Build all modules (includes Angular production build; Angular unit tests not run via Maven)
 mvn clean install
 
 # Run core unit tests only
