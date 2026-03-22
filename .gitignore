@@ -23,3 +23,9 @@ sudoku-web/src/main/resources/static/
 
 # Claude Code local settings and session logs
 .claude/
+
+# MCP server config (local-only)
+.mcp.json
+
+# IntelliJ Copilot / AI plugin personal state
+.idea/copilot.data.migration.ask2agent.xml
