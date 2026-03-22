@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-An interactive Sudoku game in Java 26, structured as a Maven multi-module project with two desktop UIs (Swing and JavaFX), a Spring Boot web backend with Thymeleaf SSR, and an Angular 19 SPA — all sharing the same core engine.
+An interactive Sudoku game in Java 26, structured as a Maven multi-module project with two desktop UIs (Swing and JavaFX), a Spring Boot web backend with Thymeleaf SSR, and an Angular 21 SPA — all sharing the same core engine.
 
 ## Build & Run
 
@@ -44,7 +44,7 @@ sudoku/
 ├── sudoku-swing/       ← Swing UI, depends on sudoku-core
 ├── sudoku-javafx/      ← JavaFX UI, depends on sudoku-core
 ├── sudoku-web/         ← Spring Boot 3.4 + Thymeleaf SSR + REST API
-└── sudoku-angular/     ← Angular 19 SPA (calls sudoku-web REST API)
+└── sudoku-angular/     ← Angular 21 SPA (calls sudoku-web REST API)
 ```
 
 ## Architecture
@@ -94,7 +94,7 @@ No `module-info.java` — `javafx-maven-plugin` handles module path automaticall
 
 ### sudoku-angular
 
-Angular 19 standalone-components SPA in `src/app/`:
+Angular 21 (Node 22.15+, TypeScript 5.9) standalone-components SPA in `src/app/`:
 - `services/game.service.ts` — `HttpClient` calls to `/api/game/*`
 - `components/board/` — `BoardComponent` renders 9×9 grid using `@for` control flow
 - `components/cell/` — `CellComponent` handles keyboard input (digits 1-9, Backspace/Delete)
@@ -114,7 +114,7 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
 - **`TimerLabel.gameState`** is non-final (needed for `rebind()`) — the `final` modifier would cause a compile error.
 - **Angular timer**: `GameSession` never calls `startTimer()` — the web UI manages its own `setInterval` timer. Calling it would leak daemon threads per session.
 - **Angular build output**: `ng build` emits to `dist/sudoku-angular/browser/` (not `dist/sudoku-angular/`). The pom copies from `browser/`.
-- **Angular Node version**: Angular 19 requires Node ≥ 20.11.x (Node 20.11.1 works). Angular 21 requires Node ≥ 20.19 / 22.12.
+- **Angular Node version**: Angular 21 requires Node ≥ 22.x. Use Node 22.15.0 via nvm. Also requires TypeScript ≥ 5.9 (published as 5.9.3 — do not use TS 5.7/5.8 with Angular 21).
 - **CORS**: `WebConfig` allows `http://localhost:4200` with credentials. In production the SPA is served from the Spring Boot static resources, so no CORS needed.
 
 ## Basic principles
@@ -122,7 +122,10 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
   - create a new branch from `main`
   - always compile and test after an implementation task
   - when done commit with descriptive commit message and push and open a PR
-- always give feedback, advice on best practices and ask questions
 - tools
   - try using latest stable libs and tools (LTS)
   - update tools when needed in D:\tools\ and make them available in the PATH
+  - use WSL with Ubuntu 22.04 LTS for Windows development with intelliJ for better integration
+  - VS Code is awful, use IntelliJ. Nevertheless, give me insights on advantages of VS Code
+- always give feedback, advice on best practices and ask questions
+- always update the README.md and CLAUDE.md

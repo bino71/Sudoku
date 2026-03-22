@@ -1,6 +1,6 @@
 # Sudoku
 
-An interactive Sudoku game implemented in Java, featuring four parallel UI implementations — **Swing**, **JavaFX**, **Spring Boot/Thymeleaf** (server-side rendered), and **Angular 19** (SPA) — all built from the same core engine. The project serves as a hands-on comparison of different UI approaches available on the Java platform and beyond.
+An interactive Sudoku game implemented in Java, featuring four parallel UI implementations — **Swing**, **JavaFX**, **Spring Boot/Thymeleaf** (server-side rendered), and **Angular 21** (SPA) — all built from the same core engine. The project serves as a hands-on comparison of different UI approaches available on the Java platform and beyond.
 
 ## Features
 
@@ -20,7 +20,7 @@ sudoku/
 ├── sudoku-swing/      ← interactive UI built with Java Swing
 ├── sudoku-javafx/     ← interactive UI built with JavaFX
 ├── sudoku-web/        ← Spring Boot 3.4 + Thymeleaf SSR + REST API
-└── sudoku-angular/    ← Angular 19 SPA (consumes sudoku-web REST API)
+└── sudoku-angular/    ← Angular 21 SPA (consumes sudoku-web REST API)
 ```
 
 `sudoku-core` has no UI dependencies. All UI modules depend only on `sudoku-core`.
@@ -31,7 +31,7 @@ sudoku/
 |------|---------|
 | Java | 26 |
 | Maven | 3.9+ |
-| Node.js | 20.11+ (for Angular dev server) |
+| Node.js | 22.15+ (for Angular dev server) |
 
 Java download: [Adoptium Temurin](https://adoptium.net/temurin/releases/) or [OpenJDK](https://jdk.java.net/)
 
@@ -98,7 +98,7 @@ The project follows a strict separation of concerns:
 - **Model** (`sudoku-core`) — `SudokuBoard`, `GameState`, `SudokuValidator`, `SudokuSolver`, `SudokuGenerator`
 - **Desktop UIs** (`sudoku-swing`, `sudoku-javafx`) — implement `GameEventListener` to react to state changes
 - **Web backend** (`sudoku-web`) — Spring Boot REST API + Thymeleaf; `GameState` is stored in HTTP session scope
-- **Web frontend** (`sudoku-angular`) — Angular 19 SPA calling the REST API
+- **Web frontend** (`sudoku-angular`) — Angular 21 SPA calling the REST API
 
 `GameState` fires `GameEvent`s to registered listeners. Desktop UIs dispatch updates to their UI threads (`SwingUtilities.invokeLater` / `Platform.runLater`). The web UI manages its own client-side timer via `setInterval`.
 
