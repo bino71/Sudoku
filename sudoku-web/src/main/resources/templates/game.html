@@ -162,10 +162,10 @@
         <tr th:each="row, rowStat : ${board.values()}">
             <td th:each="val, colStat : ${row}"
                 th:id="'cell-' + ${rowStat.index} + '-' + ${colStat.index}"
-                th:classappend="${board.given()[rowStat.index][colStat.index]} ? 'cell-given' : 'cell-user'"
-                th:attrappend="class=${board.conflicts()[rowStat.index][colStat.index]} ? ' cell-conflict' : ''"
-                th:classappend="${(colStat.index == 2 or colStat.index == 5)} ? ' box-right' : ''"
-                th:attrappend="class=${(rowStat.index == 2 or rowStat.index == 5)} ? ' box-bottom' : ''">
+                th:classappend="(${board.given()[rowStat.index][colStat.index]} ? 'cell-given ' : 'cell-user ')
+                              + (${board.conflicts()[rowStat.index][colStat.index]} ? 'cell-conflict ' : '')
+                              + (${colStat.index == 2 or colStat.index == 5 or colStat.index == 8} ? 'box-right ' : '')
+                              + (${rowStat.index == 2 or rowStat.index == 5 or rowStat.index == 8} ? 'box-bottom' : '')">
                 <input
                     th:id="'inp-' + ${rowStat.index} + '-' + ${colStat.index}"
                     type="text"

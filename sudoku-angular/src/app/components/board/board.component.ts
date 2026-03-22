@@ -31,8 +31,8 @@ export class BoardComponent {
 
   getCellClasses(row: number, col: number): Record<string, boolean> {
     return {
-      'box-border-right': col === 2 || col === 5,
-      'box-border-bottom': row === 2 || row === 5
+      'box-border-right': col === 2 || col === 5 || col === 8,
+      'box-border-bottom': row === 2 || row === 5 || row === 8
     };
   }
 
