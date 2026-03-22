@@ -127,9 +127,12 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
 
 ## Basic principles
 - When working on a new feature/fix
-  - create a new branch from `main`
+  - create a new branch from `main`/`master`
+  - work on the feature/fix in that branch
+  - rebase/merge `main` into the branch when ready
   - always compile and test after an implementation task
   - when done commit with descriptive commit message and push and open a PR
+  - if the PR is accepted, merge the branch into `main`/`master` and switch to `main`/`master`
   - use semantic commits
 - tools
   - try using latest stable libs and tools (LTS)

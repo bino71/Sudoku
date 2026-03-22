@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SudokuFxApp" type="MavenRunConfiguration" factoryName="Maven">
+    <MavenSettings>
+      <option name="myArguments" value="-pl sudoku-javafx javafx:run" />
+      <option name="myWorkingDirPath" value="$PROJECT_DIR$" />
+      <option name="myGoals" value="javafx:run" />
+    </MavenSettings>
+    <method v="2" />
+  </configuration>
+</component>

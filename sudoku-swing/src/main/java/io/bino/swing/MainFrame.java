@@ -11,7 +11,13 @@ import io.bino.swing.control.ControlPanel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 public class MainFrame extends JFrame {
 
@@ -24,6 +30,7 @@ public class MainFrame extends JFrame {
         super("Sudoku");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setIconImage(createAppIcon(32));
 
         startNewGame(Difficulty.EASY);
 
@@ -68,6 +75,50 @@ public class MainFrame extends JFrame {
         gameState.startTimer();
         revalidate();
         repaint();
+    }
+
+    /** Renders the app icon programmatically — a 3×3 Sudoku grid with a highlighted centre cell. */
+    private static BufferedImage createAppIcon(int size) {
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        // Background
+        g.setColor(new Color(0x1a2744));
+        g.fillRoundRect(0, 0, size, size, size / 8, size / 8);
+
+        int pad = size / 16;
+        int cellGap = size / 16;
+        int totalCells = 3;
+        int cellSize = (size - 2 * pad - 2 * cellGap) / totalCells;
+
+        int[][] digits = {{5, 3, 7}, {6, 9, 2}, {1, 8, 4}};
+        Color dimCell   = new Color(0x26, 0x3a, 0x66, 180);
+        Color highlight = new Color(0x4a90d9);
+        Color dimText   = new Color(0x7a9fd4);
+        Color centreText = Color.WHITE;
+
+        Font font = new Font("Arial", Font.BOLD, Math.max(6, cellSize * 7 / 10));
+        g.setFont(font);
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                int x = pad + col * (cellSize + cellGap);
+                int y = pad + row * (cellSize + cellGap);
+                boolean centre = row == 1 && col == 1;
+                g.setColor(centre ? highlight : dimCell);
+                g.fillRoundRect(x, y, cellSize, cellSize, 2, 2);
+                g.setColor(centre ? centreText : dimText);
+                String d = String.valueOf(digits[row][col]);
+                var fm = g.getFontMetrics();
+                int tx = x + (cellSize - fm.stringWidth(d)) / 2;
+                int ty = y + (cellSize + fm.getAscent() - fm.getDescent()) / 2;
+                g.drawString(d, tx, ty);
+            }
+        }
+        g.dispose();
+        return img;
     }
 
     public void showCompletion() {
