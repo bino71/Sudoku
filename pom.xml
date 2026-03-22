@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>Sudoku - Parent</name>
-    <description>Interactive Sudoku game with Swing and JavaFX UIs</description>
+    <description>Interactive Sudoku game with Swing, JavaFX, Spring Boot/Thymeleaf, and Angular 21 UIs</description>
 
     <modules>
         <module>sudoku-core</module>

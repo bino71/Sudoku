@@ -122,6 +122,7 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
   - create a new branch from `main`
   - always compile and test after an implementation task
   - when done commit with descriptive commit message and push and open a PR
+  - use semantic commits
 - tools
   - try using latest stable libs and tools (LTS)
   - update tools when needed in D:\tools\ and make them available in the PATH
