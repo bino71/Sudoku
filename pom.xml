@@ -22,6 +22,10 @@
 
     <properties>
         <java.version>26</java.version>
+        <!-- Spring Boot's ASM (in spring-boot:run) only supports up to class file 65 (Java 21).
+             Compile to Java 21 bytecode so spring-boot:run can scan classes at runtime.
+             We still build and run under JDK 26. -->
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
         <junit.platform.version>1.10.2</junit.platform.version>
@@ -93,7 +97,9 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.12.1</version>
                     <configuration>
-                        <release>26</release>
+                        <release>21</release>
+                        <!-- Required by Spring MVC to resolve @RequestParam names at runtime -->
+                        <parameters>true</parameters>
                     </configuration>
                 </plugin>
                 <plugin>

@@ -116,6 +116,8 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
 - **Angular build output**: `ng build` emits to `dist/sudoku-angular/browser/` (not `dist/sudoku-angular/`). The pom copies from `browser/`.
 - **Angular Node version**: Angular 21 requires Node ≥ 22.x. Use Node 22.15.0 via nvm. Also requires TypeScript ≥ 5.9 (published as 5.9.3 — do not use TS 5.7/5.8 with Angular 21).
 - **CORS**: `WebConfig` allows `http://localhost:4200` with credentials. In production the SPA is served from the Spring Boot static resources, so no CORS needed.
+- **Java bytecode target vs runtime**: Project compiles to Java 21 bytecode (`<release>21</release>`) even though JDK 26 is used to build/run. Spring Boot 3.4's embedded ASM only supports class file versions up to 65 (Java 21) — compiling to Java 26 bytecode (version 70) causes `Unsupported class file major version 70` at runtime in `spring-boot:run`. The `-parameters` compiler flag is also required so Spring MVC can resolve `@RequestParam` names by reflection.
+- **`spring-boot:run` and PATH**: On Windows with multiple JDKs, ensure JDK 26 is first in `PATH` (not just `JAVA_HOME`) so the forked Spring Boot process uses the correct JVM. Add `C:\Users\Horst\.jdks\openjdk-26\bin` to PATH or run via IntelliJ.
 
 ## Basic principles
 - When working on a new feature/fix
