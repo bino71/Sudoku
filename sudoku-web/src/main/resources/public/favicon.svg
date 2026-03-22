@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="4" fill="#1a2744"/>
+
+  <!-- Cell backgrounds (3x3 grid: cols at 2,12,22 width 8; rows at 2,12,22 height 8) -->
+  <!-- Row 0 -->
+  <rect x="2"  y="2"  width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <rect x="12" y="2"  width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <rect x="22" y="2"  width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <!-- Row 1 -->
+  <rect x="2"  y="12" width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <!-- Center cell — highlighted -->
+  <rect x="12" y="12" width="8" height="8" rx="1" fill="#4a90d9"/>
+  <rect x="22" y="12" width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <!-- Row 2 -->
+  <rect x="2"  y="22" width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <rect x="12" y="22" width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+  <rect x="22" y="22" width="8" height="8" rx="1" fill="#263a66" opacity="0.7"/>
+
+  <!-- Digits -->
+  <text x="6"  y="9"  text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">5</text>
+  <text x="16" y="9"  text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">3</text>
+  <text x="26" y="9"  text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">7</text>
+  <text x="6"  y="19" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">6</text>
+  <!-- Center: bold white 9 -->
+  <text x="16" y="19" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#ffffff">9</text>
+  <text x="26" y="19" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">2</text>
+  <text x="6"  y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">1</text>
+  <text x="16" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">8</text>
+  <text x="26" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#7a9fd4">4</text>
+</svg>

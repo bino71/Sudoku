@@ -13,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -46,6 +47,10 @@ public class SudokuFxApp extends Application {
         stage.setTitle("Sudoku (JavaFX)");
         stage.setScene(scene);
         stage.setResizable(false);
+        var iconUrl = getClass().getResource("icon.svg");
+        if (iconUrl != null) {
+            stage.getIcons().add(new Image(iconUrl.toExternalForm()));
+        }
         stage.show();
     }
 
