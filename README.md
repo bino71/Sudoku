@@ -15,7 +15,7 @@ An interactive Sudoku game implemented in Java, featuring two parallel UIs — *
 
 ```
 sudoku/
-├── pom.xml            ← parent POM (Java 21, Maven 3.9+)
+├── pom.xml            ← parent POM (Java 26, Maven 3.9+)
 ├── sudoku-core/       ← game logic: model, validator, solver, generator
 ├── sudoku-swing/      ← interactive UI built with Java Swing
 └── sudoku-javafx/     ← interactive UI built with JavaFX
@@ -27,10 +27,10 @@ sudoku/
 
 | Tool | Version |
 |------|---------|
-| Java | 21 (LTS) |
+| Java | 26 |
 | Maven | 3.9+ |
 
-Java 21 download: [Adoptium Temurin 21](https://adoptium.net/temurin/releases/?version=21)
+Java download: [Adoptium Temurin](https://adoptium.net/temurin/releases/) or [OpenJDK](https://jdk.java.net/)
 
 Maven download: [maven.apache.org](https://maven.apache.org/download.cgi)
 
@@ -58,11 +58,12 @@ mvn -pl sudoku-core surefire-report:report
 
 1. Select a difficulty and click **New Game**
 2. Click any empty cell and type a digit (1–9)
-3. Conflicting cells are highlighted in red immediately
-4. Use **Hint** to reveal one logically deducible cell
-5. Use **Solve** to auto-complete the puzzle
-6. Use **Reset** to clear all your entries and start over
-7. The game ends when all cells are filled correctly — your time and mistake count are shown
+3. Use **arrow keys** to move between cells
+4. Conflicting cells are highlighted in red immediately
+5. Use **Hint** to reveal one logically deducible cell
+6. Use **Solve** to auto-complete the puzzle
+7. Use **Reset** to clear all your entries and start over
+8. The game ends when all cells are filled correctly — your time and mistake count are shown
 
 ## Architecture
 
