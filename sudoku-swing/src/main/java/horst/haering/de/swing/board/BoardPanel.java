@@ -38,7 +38,8 @@ public class BoardPanel extends JPanel implements GameEventListener {
 
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
-                SudokuCellPanel cell = new SudokuCellPanel(r, c, gameState, this::focusCell);
+                SudokuCellPanel cell = new SudokuCellPanel(r, c, gameState,
+                        (sr, sc, dr, dc) -> focusCell(sr, sc, dr, dc));
                 cells[r][c] = cell;
                 add(cell);
             }
@@ -110,8 +111,19 @@ public class BoardPanel extends JPanel implements GameEventListener {
     }
 
     public void focusCell(int row, int col) {
-        if (row < 0 || row > 8 || col < 0 || col > 8) return;
-        cells[row][col].requestFocusInWindow();
+        focusCell(row, col, 0, 0);
+    }
+
+    public void focusCell(int row, int col, int dr, int dc) {
+        while (row >= 0 && row <= 8 && col >= 0 && col <= 8) {
+            if (cells[row][col].isEditable()) {
+                cells[row][col].requestFocusInWindow();
+                return;
+            }
+            if (dr == 0 && dc == 0) return;
+            row += dr;
+            col += dc;
+        }
     }
 
     public void resetHint() {

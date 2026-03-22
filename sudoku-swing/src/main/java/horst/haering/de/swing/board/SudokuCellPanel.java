@@ -13,9 +13,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.function.BiConsumer;
 
 /**
  * Single Sudoku cell backed by a JTextField.
@@ -24,20 +25,37 @@ import java.util.function.BiConsumer;
  */
 public class SudokuCellPanel extends JTextField {
 
+    @FunctionalInterface
+    public interface NavCallback {
+        /** Move focus starting at (startRow,startCol), stepping by (dr,dc) until an editable cell. */
+        void navigate(int startRow, int startCol, int dr, int dc);
+    }
+
     // Visual state colors
     static final Color COLOR_GIVEN      = new Color(230, 230, 230);
     static final Color COLOR_NORMAL     = Color.WHITE;
     static final Color COLOR_CONFLICT   = new Color(255, 180, 180);
-    static final Color COLOR_SELECTED   = new Color(180, 210, 255);
+    static final Color COLOR_SELECTED   = new Color(180, 210, 255); // used externally; LO/HI used for pulse
     static final Color COLOR_HINT       = new Color(180, 255, 200);
+
+    // Pulse animation: oscillates between COLOR_SELECTED_LO and COLOR_SELECTED_HI
+    private static final Color COLOR_SELECTED_LO = new Color(180, 210, 255);
+    private static final Color COLOR_SELECTED_HI = new Color(90,  160, 255);
+    private static final int   PULSE_STEPS = 30;   // steps per half-cycle
+    private static final int   PULSE_MS    = 20;   // ms per step → 600ms half-cycle
 
     private final int row;
     private final int col;
     private final GameState gameState;
     private boolean isConflicting = false;
     private boolean isHinted = false;
+    private boolean isSelected = false;
 
-    public SudokuCellPanel(int row, int col, GameState gameState, BiConsumer<Integer, Integer> focusNeighbor) {
+    private javax.swing.Timer pulseTimer;
+    private int pulseStep = 0;
+    private boolean pulseDir = true; // true = going toward HI
+
+    public SudokuCellPanel(int row, int col, GameState gameState, NavCallback focusNeighbor) {
         this.row = row;
         this.col = col;
         this.gameState = gameState;
@@ -63,6 +81,12 @@ public class SudokuCellPanel extends JTextField {
             installFilter();
         }
 
+        // Pulse on focus
+        addFocusListener(new FocusAdapter() {
+            @Override public void focusGained(FocusEvent e) { startPulse(); }
+            @Override public void focusLost(FocusEvent e)   { stopPulse();  }
+        });
+
         // Arrow keys navigate between cells; suppress default JTextField caret movement
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "none");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "none");
@@ -72,10 +96,11 @@ public class SudokuCellPanel extends JTextField {
             @Override
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP    -> focusNeighbor.accept(row - 1, col);
-                    case KeyEvent.VK_DOWN  -> focusNeighbor.accept(row + 1, col);
-                    case KeyEvent.VK_LEFT  -> focusNeighbor.accept(row, col - 1);
-                    case KeyEvent.VK_RIGHT -> focusNeighbor.accept(row, col + 1);
+                    case KeyEvent.VK_UP    -> focusNeighbor.navigate(row - 1, col, -1,  0);
+                    case KeyEvent.VK_DOWN  -> focusNeighbor.navigate(row + 1, col,  1,  0);
+                    case KeyEvent.VK_LEFT  -> focusNeighbor.navigate(row, col - 1,  0, -1);
+                    case KeyEvent.VK_RIGHT -> focusNeighbor.navigate(row, col + 1,  0,  1);
+                    default -> {}
                 }
             }
         });
@@ -147,6 +172,31 @@ public class SudokuCellPanel extends JTextField {
         } else {
             setBackground(COLOR_NORMAL);
         }
+    }
+
+    private void startPulse() {
+        isSelected = true;
+        pulseStep = 0;
+        pulseDir  = true;
+        if (pulseTimer == null) {
+            pulseTimer = new javax.swing.Timer(PULSE_MS, e -> {
+                pulseStep += pulseDir ? 1 : -1;
+                if (pulseStep >= PULSE_STEPS) { pulseStep = PULSE_STEPS; pulseDir = false; }
+                if (pulseStep <= 0)           { pulseStep = 0;           pulseDir = true;  }
+                float t = (float) pulseStep / PULSE_STEPS;
+                int r = (int)(COLOR_SELECTED_LO.getRed()   + t * (COLOR_SELECTED_HI.getRed()   - COLOR_SELECTED_LO.getRed()));
+                int g = (int)(COLOR_SELECTED_LO.getGreen() + t * (COLOR_SELECTED_HI.getGreen() - COLOR_SELECTED_LO.getGreen()));
+                int b = (int)(COLOR_SELECTED_LO.getBlue()  + t * (COLOR_SELECTED_HI.getBlue()  - COLOR_SELECTED_LO.getBlue()));
+                setBackground(new Color(r, g, b));
+            });
+        }
+        pulseTimer.start();
+    }
+
+    private void stopPulse() {
+        isSelected = false;
+        if (pulseTimer != null) pulseTimer.stop();
+        refreshBackground();
     }
 
     public int getCellRow() { return row; }

@@ -5,10 +5,16 @@ import horst.haering.de.core.event.GameEventListener;
 import horst.haering.de.core.logic.SudokuValidator;
 import horst.haering.de.core.model.CellState;
 import horst.haering.de.core.model.GameState;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import java.util.Set;
 
@@ -25,6 +31,9 @@ public class BoardGrid extends GridPane implements GameEventListener {
     private final SudokuValidator validator = new SudokuValidator();
 
     private int lastHintRow = -1, lastHintCol = -1;
+
+    private Timeline selectionPulse;
+    private TextField currentSelection;
 
     public BoardGrid(GameState gameState) {
         this.gameState = gameState;
@@ -95,8 +104,10 @@ public class BoardGrid extends GridPane implements GameEventListener {
 
         tf.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused) {
+                startSelectionPulse(tf);
                 applyStyle(tf, "cell-selected");
             } else {
+                stopSelectionPulse(tf);
                 reapplyConflictStyle(row, col);
             }
         });
@@ -110,8 +121,13 @@ public class BoardGrid extends GridPane implements GameEventListener {
             else return;
             e.consume();
             int nr = row + dr, nc = col + dc;
-            if (nr >= 0 && nr < 9 && nc >= 0 && nc < 9) {
-                cells[nr][nc].requestFocus();
+            while (nr >= 0 && nr < 9 && nc >= 0 && nc < 9) {
+                if (cells[nr][nc].isEditable()) {
+                    cells[nr][nc].requestFocus();
+                    break;
+                }
+                nr += dr;
+                nc += dc;
             }
         });
     }
@@ -179,6 +195,36 @@ public class BoardGrid extends GridPane implements GameEventListener {
         if (!tf.getStyleClass().contains(styleName)) {
             tf.getStyleClass().add(styleName);
         }
+    }
+
+    private void startSelectionPulse(TextField tf) {
+        if (selectionPulse != null) selectionPulse.stop();
+        if (currentSelection != null && currentSelection != tf) {
+            currentSelection.setEffect(null);
+        }
+        currentSelection = tf;
+
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.web("#3a8fff"));
+        glow.setSpread(0.3);
+        tf.setEffect(glow);
+
+        selectionPulse = new Timeline(
+            new KeyFrame(Duration.ZERO,        new KeyValue(glow.radiusProperty(), 4)),
+            new KeyFrame(Duration.millis(700), new KeyValue(glow.radiusProperty(), 14)),
+            new KeyFrame(Duration.millis(1400),new KeyValue(glow.radiusProperty(), 4))
+        );
+        selectionPulse.setCycleCount(Timeline.INDEFINITE);
+        selectionPulse.play();
+    }
+
+    private void stopSelectionPulse(TextField tf) {
+        if (selectionPulse != null) {
+            selectionPulse.stop();
+            selectionPulse = null;
+        }
+        tf.setEffect(null);
+        currentSelection = null;
     }
 
     public void resetHint() {

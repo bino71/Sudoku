@@ -1,6 +1,6 @@
 # Sudoku
 
-An interactive Sudoku game implemented in Java, featuring two parallel UIs — **Swing** and **JavaFX** — built from the same core engine. The project serves as a direct comparison of the two major Java UI toolkits applied to the same application.
+An interactive Sudoku game implemented in Java, featuring two parallel UIs — **Swing** and **JavaFX** — built from the same core engine. The project serves as a direct hands-on comparison of the two UI toolkits available in the standard Java platform.
 
 ## Features
 
@@ -75,6 +75,22 @@ The project follows a strict MVC separation:
 `GameState` fires `GameEvent`s (cell changed, conflict detected, hint applied, puzzle complete, timer tick) to registered listeners. The two UIs wire themselves up as listeners and update their components accordingly — `SwingUtilities.invokeLater` for Swing, `Platform.runLater` for JavaFX.
 
 The solver uses a **backtracking + MRV (Minimum Remaining Values)** heuristic: always fill the empty cell with the fewest legal candidates first. This makes puzzle generation fast enough for real-time use.
+
+## Java UI Toolkit Comparison
+
+This project intentionally implements the same application twice to highlight differences between the two built-in Java UI toolkits:
+
+| | Swing | JavaFX |
+|---|---|---|
+| **Package** | `javax.swing` (in JDK) | `javafx.*` (separate module since JDK 11) |
+| **Styling** | Per-component Java API (`setBackground`, `setFont`) | CSS stylesheets (`-fx-background-color`, etc.) |
+| **Layout** | `LayoutManager` implementations (`GridLayout`, `BorderLayout`) | Scene graph nodes (`GridPane`, `BorderPane`, `VBox`) |
+| **Animation** | `javax.swing.Timer` + manual color interpolation | `Timeline` + `KeyValue` / `DropShadow` effect |
+| **Threading** | `SwingUtilities.invokeLater` | `Platform.runLater` |
+| **Custom painting** | Override `paintComponent(Graphics)` | CSS or effect API — no painting needed |
+| **FXML** | — | Declarative UI via FXML + controller |
+
+> **Other Java UI options:** AWT (the grandfather Swing is built on — rarely used directly), and SWT (Eclipse's native-widget toolkit — not part of the JDK, separate dependency). For most desktop apps, Swing and JavaFX are the practical choices.
 
 ## Project History
 
