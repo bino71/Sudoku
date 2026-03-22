@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>horst.haering.de</groupId>
+        <artifactId>sudoku-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>sudoku-swing</artifactId>
+    <name>Sudoku - Swing UI</name>
+    <description>Interactive Sudoku UI built with Java Swing</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>horst.haering.de</groupId>
+            <artifactId>sudoku-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>horst.haering.de.swing.SudokuSwingApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
