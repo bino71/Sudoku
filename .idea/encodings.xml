@@ -9,5 +9,7 @@
     <file url="file://$PROJECT_DIR$/sudoku-javafx/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sudoku-swing/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sudoku-swing/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sudoku-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sudoku-web/src/main/resources" charset="UTF-8" />
   </component>
 </project>

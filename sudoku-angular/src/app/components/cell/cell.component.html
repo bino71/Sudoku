@@ -1,0 +1,15 @@
+<div
+  class="cell"
+  [ngClass]="{
+    given: given,
+    conflict: conflict,
+    selected: selected,
+    hinted: hinted,
+    empty: value === 0
+  }"
+  tabindex="0"
+  (click)="onClick()"
+  (keydown)="onKeyDown($event)"
+>
+  {{ displayValue }}
+</div>

@@ -9,6 +9,7 @@
         <module name="sudoku-core" />
         <module name="sudoku-javafx" />
         <module name="sudoku-swing" />
+        <module name="sudoku-web" />
       </profile>
     </annotationProcessing>
   </component>

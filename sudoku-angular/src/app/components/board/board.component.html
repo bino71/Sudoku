@@ -1,0 +1,22 @@
+@if (board) {
+  <div class="board">
+    @for (row of rows; track row) {
+      @for (col of cols; track col) {
+        <div class="cell-wrapper" [ngClass]="getCellClasses(row, col)">
+          <app-cell
+            [value]="board.values[row][col]"
+            [given]="board.given[row][col]"
+            [conflict]="board.conflicts[row][col]"
+            [selected]="isSelected(row, col)"
+            [hinted]="isHinted(row, col)"
+            (cellClick)="onCellClick(row, col)"
+            (digitKey)="onDigitKey(row, col, $event)"
+            (clearKey)="onClearKey(row, col)"
+          />
+        </div>
+      }
+    }
+  </div>
+} @else {
+  <div class="board-placeholder">Loading board...</div>
+}

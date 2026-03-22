@@ -1,0 +1,108 @@
+.control-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+
+.timer-section,
+.mistakes-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.timer-label,
+.mistakes-label,
+.difficulty-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.timer-value {
+  font-size: 2rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  color: #333;
+}
+
+.mistakes-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #cc0000;
+}
+
+.difficulty-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.difficulty-select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background: #fff;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #4a90d9;
+  }
+}
+
+.buttons-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.btn-primary {
+  background: #4a90d9;
+  color: #fff;
+
+  &:hover {
+    background: #357abd;
+  }
+}
+
+.btn-secondary {
+  background: #e8e8e8;
+  color: #333;
+
+  &:hover {
+    background: #d0d0d0;
+  }
+}
+
+.complete-badge {
+  text-align: center;
+  padding: 8px 12px;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border: 1px solid #c3e6cb;
+}
