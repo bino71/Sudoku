@@ -26,13 +26,18 @@ mvn -pl sudoku-swing exec:java
 # Launch JavaFX UI
 mvn -pl sudoku-javafx javafx:run
 
-# Launch web UI (Spring Boot — serves Thymeleaf + Angular SPA at :8080)
+# Build Angular then launch web UI (both served from Spring Boot at :8080)
+# Step 1 — build Angular (only needed once, or after Angular changes)
+cd sudoku-angular && npm run build && cd ..
+# Step 2 — start Spring Boot (auto-copies Angular dist on startup via generate-resources)
 mvn -pl sudoku-web spring-boot:run
-# then open http://localhost:8080  (Thymeleaf) or http://localhost:8080/index.html (Angular)
+# http://localhost:8080/           ← Angular SPA
+# http://localhost:8080/thymeleaf  ← Thymeleaf SSR page
+# http://localhost:8080/api/game/* ← REST API
 
-# Angular dev server with live-reload (proxies /api → :8080)
+# Angular dev server with live-reload (requires Spring Boot running on :8080)
 cd sudoku-angular && npm start
-# open http://localhost:4200
+# open http://localhost:4200  — proxies /api/* to :8080
 ```
 
 ## Module Layout
@@ -117,7 +122,8 @@ Maven build: `frontend-maven-plugin` downloads Node, runs `npm install` + `ng bu
 - **Angular Node version**: Angular 21 requires Node ≥ 22.x. Use Node 22.15.0 via nvm. Also requires TypeScript ≥ 5.9 (published as 5.9.3 — do not use TS 5.7/5.8 with Angular 21).
 - **CORS**: `WebConfig` allows `http://localhost:4200` with credentials. In production the SPA is served from the Spring Boot static resources, so no CORS needed.
 - **Java bytecode target vs runtime**: Project compiles to Java 21 bytecode (`<release>21</release>`) even though JDK 26 is used to build/run. Spring Boot 3.4's embedded ASM only supports class file versions up to 65 (Java 21) — compiling to Java 26 bytecode (version 70) causes `Unsupported class file major version 70` at runtime in `spring-boot:run`. The `-parameters` compiler flag is also required so Spring MVC can resolve `@RequestParam` names by reflection.
-- **`spring-boot:run` and PATH**: On Windows with multiple JDKs, ensure JDK 26 is first in `PATH` (not just `JAVA_HOME`) so the forked Spring Boot process uses the correct JVM. Add `C:\Users\Horst\.jdks\openjdk-26\bin` to PATH or run via IntelliJ.
+- **`spring-boot:run` and PATH**: On Windows with multiple JDKs, ensure JDK 26 is first in `PATH` (not just `JAVA_HOME`) so the forked Spring Boot process uses the correct JVM. IntelliJ handles this automatically via the project SDK — always prefer running via IntelliJ rather than the terminal.
+- **Angular 404 on first run**: `spring-boot:run` serves from `target/classes/static/`. The Angular dist must be built first (`npm run build` in `sudoku-angular/`). The `sudoku-web` pom copies the dist during `generate-resources` — this runs automatically when IntelliJ triggers the Spring Boot run config. After a fresh clone: build Angular once, then Spring Boot picks it up.
 
 ## Basic principles
 - When working on a new feature/fix
