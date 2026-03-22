@@ -13,7 +13,7 @@
     <artifactId>sudoku-angular</artifactId>
     <packaging>pom</packaging>
     <name>Sudoku - Angular UI</name>
-    <description>Angular 19 SPA for Sudoku — calls sudoku-web REST API</description>
+    <description>Angular 21 SPA for Sudoku — calls sudoku-web REST API</description>
 
     <build>
         <plugins>
